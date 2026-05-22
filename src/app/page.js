@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { getFirestore, collection, doc, setDoc, getDoc, onSnapshot, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { Activity, Users, FileText, Settings, LogOut, Plus, Search, ChevronRight, ChevronDown, Save, Play, CheckCircle, BarChart2, ArrowLeft, Download, Trash2, Edit, Printer, FileOutput, Link as LinkIcon, Copy, Mail, Send, Menu, X } from 'lucide-react';
+import { Activity, Users, FileText, Settings, LogOut, Plus, Search, ChevronRight, ChevronDown, Save, Play, CheckCircle, BarChart2, ArrowLeft, Download, Trash2, Edit, Printer, FileOutput, Link as LinkIcon, Copy, Mail, Send, Menu, X, AlertCircle } from 'lucide-react';
 
 // ==========================================
 // 1. >>> ENGANXA AQUÍ EL TEU FIREBASE CONFIG <<<
@@ -26,43 +26,14 @@ const SEED_TESTS = [
   {
     title: "Headache Impact Test (HIT-6)", category: "Cap i Coll", description: "Avalua l'impacte del mal de cap en la vida diària. Cada resposta té un valor: Mai (6), Gairebé mai (8), A vegades (10), Molt sovint (11), Sempre (13).",
     questions: [
-      { id: "h1", text: "1. Quan té mal de cap, ¿amb quina freqüència el dolor és fort?", type: "choice", options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
-      { id: "h2", text: "2. ¿Amb quina freqüència el mal de cap li limita la capacitat per fer les activitats diàries habituals?", type: "choice", options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
-      { id: "h3", text: "3. Quan té mal de cap, ¿amb quina freqüència desitja estirar-se?", type: "choice", options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
-      { id: "h4", text: "4. En les últimes 4 setmanes, ¿amb quina freqüència s'ha sentit massa cansat per fer la feina o les activitats diàries per culpa del mal de cap?", type: "choice", options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
-      { id: "h5", text: "5. En les últimes 4 setmanes, ¿amb quina freqüència s'ha sentit fart i irritat pel mal de cap?", type: "choice", options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
-      { id: "h6", text: "6. En les últimes 4 setmanes, ¿amb quina freqüència el mal de cap li ha limitat la capacitat per concentrar-se?", type: "choice", options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] }
+      { id: "h1", text: "1. Quan té mal de cap, ¿amb quina freqüència el dolor és fort?", type: "choice", required: true, options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
+      { id: "h2", text: "2. ¿Amb quina freqüència el mal de cap li limita la capacitat per fer les activitats diàries habituals?", type: "choice", required: true, options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
+      { id: "h3", text: "3. Quan té mal de cap, ¿amb quina freqüència desitja estirar-se?", type: "choice", required: true, options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
+      { id: "h4", text: "4. En les últimes 4 setmanes, ¿amb quina freqüència s'ha sentit massa cansat per fer la feina o les activitats diàries per culpa del mal de cap?", type: "choice", required: true, options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
+      { id: "h5", text: "5. En les últimes 4 setmanes, ¿amb quina freqüència s'ha sentit fart i irritat pel mal de cap?", type: "choice", required: true, options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] },
+      { id: "h6", text: "6. En les últimes 4 setmanes, ¿amb quina freqüència el mal de cap li ha limitat la capacitat per concentrar-se?", type: "choice", required: true, options: [ { text: "Mai", points: 6 }, { text: "Gairebé mai", points: 8 }, { text: "A vegades", points: 10 }, { text: "Molt sovint", points: 11 }, { text: "Sempre", points: 13 } ] }
     ],
     interpretations: [ { min: 36, max: 49, label: "Impacte Lleu", color: "text-green-700 bg-green-100" }, { min: 50, max: 55, label: "Impacte Moderat", color: "text-yellow-700 bg-yellow-100" }, { min: 56, max: 59, label: "Impacte Substancial", color: "text-orange-700 bg-orange-100" }, { min: 60, max: 78, label: "Impacte Sever", color: "text-red-700 bg-red-100" } ]
-  },
-  {
-    title: "Índex de Discapacitat Cervical (NDI)", category: "Cap i Coll", description: "Qüestionari validat de 10 ítems per avaluar la discapacitat associada al dolor cervical.",
-    questions: [
-      { id: "q1", text: "1. Intensitat del dolor", type: "choice", options: [ { text: "No tinc dolor en aquest moment", points: 0 }, { text: "Dolor molt suau", points: 1 }, { text: "Dolor moderat", points: 2 }, { text: "Dolor bastant sever", points: 3 }, { text: "Dolor molt sever", points: 4 }, { text: "El pitjor imaginable", points: 5 } ]},
-      { id: "q2", text: "2. Cures personals", type: "choice", options: [ { text: "Puc cuidar de mi mateix sense dolor", points: 0 }, { text: "Puc però em causa dolor", points: 1 }, { text: "És dolorós i sóc lent", points: 2 }, { text: "Necessito ajuda", points: 3 }, { text: "Necessito ajuda cada dia", points: 4 }, { text: "No puc vestir-me ni rentar-me", points: 5 } ]},
-      { id: "q3", text: "3. Aixecar pesos", type: "choice", options: [ { text: "Sense dolor", points: 0 }, { text: "Amb dolor", points: 1 }, { text: "El dolor m'impedeix pesos grans", points: 2 }, { text: "Només pesos mitjans", points: 3 }, { text: "Només molt lleugers", points: 4 }, { text: "No puc", points: 5 } ]}
-    ],
-    interpretations: [ { min: 0, max: 4, label: "Sense discapacitat (0-8%)", color: "text-green-700 bg-green-100" }, { min: 5, max: 14, label: "Discapacitat lleu (10-28%)", color: "text-blue-700 bg-blue-100" }, { min: 15, max: 24, label: "Discapacitat moderada (30-48%)", color: "text-yellow-700 bg-yellow-100" }, { min: 25, max: 34, label: "Discapacitat severa (50-68%)", color: "text-orange-700 bg-orange-100" }, { min: 35, max: 50, label: "Discapacitat completa (70-100%)", color: "text-red-700 bg-red-100" } ]
-  },
-  {
-    title: "Escala Tampa de Kinesiofòbia (TSK-11SV)", category: "Funció Global", description: "Avalua la por al moviment.",
-    questions: [
-      { id: "t1", text: "1. Em fa por que em pugui fer mal si faig exercici.", type: "choice", options: [ { text: "Totalment en desacord", points: 1 }, { text: "En desacord", points: 2 }, { text: "D'acord", points: 3 }, { text: "Totalment d'acord", points: 4 } ]},
-      { id: "t2", text: "2. Si intentés superar el dolor, em faria més mal.", type: "choice", options: [ { text: "Totalment en desacord", points: 1 }, { text: "En desacord", points: 2 }, { text: "D'acord", points: 3 }, { text: "Totalment d'acord", points: 4 } ]}
-    ],
-    interpretations: [ { min: 11, max: 22, label: "Kinesiofòbia Baixa", color: "text-green-700 bg-green-100" }, { min: 23, max: 33, label: "Kinesiofòbia Moderada", color: "text-yellow-700 bg-yellow-100" }, { min: 34, max: 44, label: "Kinesiofòbia Alta", color: "text-red-700 bg-red-100" } ]
-  },
-  {
-    title: "Total Tenderness Score (Punts Gatell)", category: "Cap i Coll", description: "Palpació de punts dolorosos. 0 (No dolor), 1 (Lleu), 2 (Moderat), 3 (Sever).",
-    questions: [
-      { id: "tts1", text: "Trapeci Superior", type: "bilateral_number", max: 3 },
-      { id: "tts2", text: "Regió Craniocervical (Suboccipitals)", type: "bilateral_number", max: 3 },
-      { id: "tts3", text: "Temporal", type: "bilateral_number", max: 3 },
-      { id: "tts4", text: "Frontal", type: "bilateral_number", max: 3 },
-      { id: "tts5", text: "Masseter", type: "bilateral_number", max: 3 },
-      { id: "tts6", text: "ECOM", type: "bilateral_number", max: 3 }
-    ],
-    interpretations: [ { min: 0, max: 10, label: "Sensibilització Baixa", color: "text-green-700 bg-green-100" }, { min: 11, max: 25, label: "Sensibilització Moderada", color: "text-yellow-700 bg-yellow-100" }, { min: 26, max: 42, label: "Sensibilització Severa", color: "text-red-700 bg-red-100" } ]
   }
 ];
 
@@ -78,20 +49,9 @@ const Card = ({ children, className = '' }) => (<div className={`bg-white rounde
 // --- COMPONENT LOGO INTEL·LIGENT ---
 const ModumLogo = ({ className, isPrint = false }) => {
   const [srcIndex, setSrcIndex] = useState(0);
-  const sources = [
-    "/logo.jpg",
-    "/logo.png",
-    "/logo.jpg.jpg",
-    "/logo.jpeg",
-    "/MODUM-Logo-04 (16).jpg",
-    "/MODUM-Logo-04%20(16).jpg"
-  ];
+  const sources = [ "/logo.jpg", "/logo.png", "/logo.jpg.jpg", "/logo.jpeg", "/MODUM-Logo-04 (16).jpg", "/MODUM-Logo-04%20(16).jpg" ];
 
-  const handleError = () => {
-    if (srcIndex < sources.length) {
-      setSrcIndex(srcIndex + 1);
-    }
-  };
+  const handleError = () => { if (srcIndex < sources.length) setSrcIndex(srcIndex + 1); };
 
   if (srcIndex >= sources.length) {
     if (isPrint) {
@@ -109,9 +69,7 @@ const ModumLogo = ({ className, isPrint = false }) => {
     );
   }
 
-  return (
-    <img src={sources[srcIndex]} alt="MODUM" className={`object-contain ${className}`} onError={handleError} />
-  );
+  return <img src={sources[srcIndex]} alt="MODUM" className={`object-contain ${className}`} onError={handleError} />;
 };
 
 // --- COMPONENT GRÀFICA SVG ---
@@ -322,10 +280,8 @@ export default function App() {
         </div>
       </main>
 
-      {/* LÒGICA D'IMPRESSIÓ NETA SENSE VISIBILITY: HIDDEN */}
       <style dangerouslySetInnerHTML={{__html: `
         @media print {
-          /* Eliminem tot allò que tingui classe no-print perquè no ocupi espai i eviti salts de pàgina */
           body * { visibility: hidden; }
           .printable-area, .printable-area * { visibility: visible; }
           .printable-area { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; margin: 0 !important; padding: 0 !important; }
@@ -334,17 +290,13 @@ export default function App() {
           .print-break-inside-avoid { page-break-inside: avoid; break-inside: avoid; }
           .print-page-break { page-break-before: always; break-before: page; }
           
-          /* Netegem estils que puguin molestar */
           .shadow-sm, .shadow-md, .shadow-xl { box-shadow: none !important; border: none !important; }
           
-          /* OPTIMITZACIÓ DE PÀGINA PER CABRE MÉS */
           @page { margin: 1cm; size: auto; }
-          
+          .printable-area { padding: 0 !important; margin: 0 !important; border: none !important; box-shadow: none !important; }
           h1 { font-size: 1.5rem !important; margin-bottom: 0.2rem !important; }
           h2 { font-size: 1.1rem !important; margin-bottom: 0.5rem !important; }
           h3 { font-size: 1rem !important; margin-bottom: 0.2rem !important; }
-          
-          /* Compactació per cabre en 1 pàgina */
           .print-compact-result { padding: 0.5rem !important; margin-bottom: 1rem !important; border: 1px solid #e5e7eb !important; }
           .print-compact-result p.text-4xl { font-size: 2rem !important; }
           .print-compact-row { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; border-bottom: 1px solid #f3f4f6 !important; }
@@ -804,17 +756,29 @@ const PrintResponseView = ({ responseId, responses, tests, patients, onNavigate 
         <h3 className="font-bold text-sm text-slate-800 border-b pb-1 mb-2 uppercase tracking-wide">Detall de Respostes</h3>
         <div className="grid grid-cols-1 gap-x-6 gap-y-0">
           {test?.questions.map((q, idx) => {
+            if (q.type === 'section') return (
+              <div key={q.id} className="mt-4 mb-2 border-b-2 border-slate-200 print-break-inside-avoid">
+                <h4 className="font-bold text-slate-800 uppercase tracking-wider text-xs">{q.text}</h4>
+              </div>
+            );
+
             let ansText = "-";
             const ansVal = response.answers[q.id];
+            
             if (q.type === 'choice' && ansVal !== undefined) ansText = `${q.options[ansVal].text} (${q.options[ansVal].points} pts)`;
             else if (q.type === 'boolean' && ansVal !== undefined) ansText = ansVal ? `SÍ (${q.points||1} pts)` : `NO (0 pts)`;
             else if (q.type === 'number' && ansVal !== undefined) ansText = `${ansVal} / ${q.max||10}`;
-            else if (q.type === 'bilateral_number' && ansVal) ansText = `Dreta: ${ansVal.R||0} | Esquerra: ${ansVal.L||0}`;
+            else if (q.type === 'bilateral_number' && ansVal) ansText = `D: ${ansVal.R||0} | E: ${ansVal.L||0}`;
+            else if (q.type === 'text' && ansVal) ansText = ansVal;
+            else if (q.type === 'checkbox' && ansVal) {
+              const selected = Object.keys(ansVal).filter(k => ansVal[k]).map(k => q.options[k].text);
+              ansText = selected.length > 0 ? selected.join(', ') : '-';
+            }
 
             return (
               <div key={q.id} className="print-compact-row flex justify-between py-1.5 border-b border-slate-100 print-break-inside-avoid">
-                <p className="text-slate-700 font-medium pr-2 text-xs sm:text-sm max-w-[75%]">{q.text}</p>
-                <p className="text-slate-900 font-bold text-right text-xs sm:text-sm">{ansText}</p>
+                <p className="text-slate-700 font-medium pr-2 text-xs sm:text-sm max-w-[70%]">{q.text}</p>
+                <p className="text-slate-900 font-bold text-right text-xs sm:text-sm break-words max-w-[30%]">{ansText}</p>
               </div>
             )
           })}
@@ -857,8 +821,16 @@ const TestBuilder = ({ testId, tests, onNavigate, user }) => {
     if (!user) return;
     try { const testsRef = collection(db, 'biblioteca_tests_clinics_v3'); if (testId === 'new') await addDoc(testsRef, test); else await updateDoc(doc(testsRef, testId), test); onNavigate('tests'); } catch (error) { console.error(error); }
   };
-  const addQuestion = () => setTest({ ...test, questions: [...test.questions, { id: Date.now().toString(), text: 'Nova Pregunta', type: 'choice', options: [{text: 'Opció 1', points: 0}] }] });
+  
+  const addQuestion = () => setTest({ ...test, questions: [...test.questions, { id: Date.now().toString(), text: 'Nova Pregunta', type: 'choice', required: false, options: [{text: 'Opció 1', points: 0}] }] });
   const updateQuestion = (index, field, value) => { const newQ = [...test.questions]; newQ[index][field] = value; setTest({...test, questions: newQ}); };
+  const duplicateQuestion = (index) => {
+    const qToCopy = test.questions[index];
+    const newQ = { ...qToCopy, id: Date.now().toString() };
+    const newQuestions = [...test.questions];
+    newQuestions.splice(index + 1, 0, newQ);
+    setTest({ ...test, questions: newQuestions });
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-20">
@@ -868,48 +840,97 @@ const TestBuilder = ({ testId, tests, onNavigate, user }) => {
       </div>
       <Card className="p-6 space-y-4 border-t-4 border-indigo-500">
         <input className="w-full p-3 border rounded-lg text-lg font-bold" placeholder="Títol del Test Clínic" value={test.title} onChange={e => setTest({...test, title: e.target.value})} />
-        <textarea className="w-full p-3 border rounded-lg" placeholder="Descripció i ús clínic" rows="3" value={test.description} onChange={e => setTest({...test, description: e.target.value})} />
-        <input className="w-full p-3 border rounded-lg" placeholder="Categoria" value={test.category} onChange={e => setTest({...test, category: e.target.value})} />
+        <textarea className="w-full p-3 border rounded-lg" placeholder="Descripció i ús clínic (Instruccions pel pacient)" rows="3" value={test.description} onChange={e => setTest({...test, description: e.target.value})} />
+        <input className="w-full p-3 border rounded-lg" placeholder="Categoria (ex: Cap i Coll, Genoll...)" value={test.category} onChange={e => setTest({...test, category: e.target.value})} />
       </Card>
+      
       <div className="space-y-4">
         {test.questions.map((q, qIndex) => (
-          <Card key={q.id} className="p-4 border-l-4 border-blue-500 overflow-hidden">
+          <Card key={q.id} className={`p-4 overflow-hidden border-l-4 ${q.type === 'section' ? 'border-purple-500 bg-purple-50/30' : 'border-blue-500'}`}>
             <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
-              <input className="flex-1 w-full sm:w-auto p-2 border rounded font-medium" value={q.text} onChange={e => updateQuestion(qIndex, 'text', e.target.value)} />
-              <div className="flex w-full sm:w-auto gap-2">
-                <select className="flex-1 sm:flex-none p-2 border rounded bg-gray-50 text-sm" value={q.type} onChange={e => updateQuestion(qIndex, 'type', e.target.value)}>
-                  <option value="choice">Selecció Múltiple</option><option value="boolean">Sí/No</option><option value="number">Escala Numèrica Unica</option><option value="bilateral_number">Escala Bilateral (Dreta/Esq)</option>
+              <input className={`flex-1 w-full sm:w-auto p-2 border rounded font-medium ${q.type === 'section' ? 'text-xl font-bold text-purple-900 bg-transparent border-purple-200 placeholder-purple-300' : ''}`} placeholder={q.type === 'section' ? "Títol de la secció..." : "Pregunta..."} value={q.text} onChange={e => updateQuestion(qIndex, 'text', e.target.value)} />
+              <div className="flex w-full sm:w-auto gap-2 items-center flex-wrap sm:flex-nowrap">
+                {q.type !== 'section' && (
+                   <label className="flex items-center gap-1 text-sm text-gray-600 bg-gray-100 px-2 py-1.5 rounded cursor-pointer">
+                     <input type="checkbox" checked={q.required || false} onChange={e => updateQuestion(qIndex, 'required', e.target.checked)} />
+                     Obligatòria
+                   </label>
+                )}
+                <select className="flex-1 sm:flex-none p-2 border rounded bg-white text-sm font-medium" value={q.type} onChange={e => updateQuestion(qIndex, 'type', e.target.value)}>
+                  <optgroup label="Opcions">
+                    <option value="choice">Selecció Única (Radio)</option>
+                    <option value="checkbox">Selecció Múltiple (Checkboxes)</option>
+                    <option value="boolean">Sí / No</option>
+                  </optgroup>
+                  <optgroup label="Escales">
+                    <option value="number">Escala Numèrica / Slider EVA</option>
+                    <option value="bilateral_number">Escala Bilateral (Dreta/Esq)</option>
+                  </optgroup>
+                  <optgroup label="Altres">
+                    <option value="text">Resposta Oberta (Text)</option>
+                    <option value="section">Capçalera de Secció (Enquadrat)</option>
+                  </optgroup>
                 </select>
-                <button onClick={() => setTest({...test, questions: test.questions.filter((_, i) => i !== qIndex)})} className="p-2 text-red-500 hover:bg-red-50 rounded shrink-0"><Trash2 className="w-5 h-5" /></button>
+                <div className="flex gap-1">
+                  <button onClick={() => duplicateQuestion(qIndex)} className="p-2 text-gray-500 hover:bg-gray-200 rounded shrink-0" title="Duplicar pregunta"><Copy className="w-4 h-4" /></button>
+                  <button onClick={() => setTest({...test, questions: test.questions.filter((_, i) => i !== qIndex)})} className="p-2 text-red-500 hover:bg-red-50 rounded shrink-0" title="Esborrar pregunta"><Trash2 className="w-5 h-5" /></button>
+                </div>
               </div>
             </div>
-            {q.type === 'choice' && (
+            
+            {/* CONFIGURACIÓ SEGONS EL TIPUS */}
+            {(q.type === 'choice' || q.type === 'checkbox') && (
               <div className="pl-4 space-y-2 border-l-2 border-gray-100">
                 {(q.options || []).map((opt, oIndex) => (
                   <div key={oIndex} className="flex items-center gap-2">
-                    <input className="flex-1 p-1 border-b text-sm" value={opt.text} onChange={e => { const newOpts = [...q.options]; newOpts[oIndex].text = e.target.value; updateQuestion(qIndex, 'options', newOpts); }} />
-                    <input type="number" className="w-16 sm:w-20 p-1 border rounded text-center text-sm" placeholder="Punts" value={opt.points} onChange={e => { const newOpts = [...q.options]; newOpts[oIndex].points = Number(e.target.value); updateQuestion(qIndex, 'options', newOpts); }} />
+                    <input className="flex-1 p-1.5 border-b text-sm focus:outline-none focus:border-blue-500 bg-transparent" placeholder="Text de l'opció..." value={opt.text} onChange={e => { const newOpts = [...q.options]; newOpts[oIndex].text = e.target.value; updateQuestion(qIndex, 'options', newOpts); }} />
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs text-gray-400">Punts:</span>
+                      <input type="number" className="w-16 p-1.5 border rounded text-center text-sm" value={opt.points} onChange={e => { const newOpts = [...q.options]; newOpts[oIndex].points = Number(e.target.value); updateQuestion(qIndex, 'options', newOpts); }} />
+                      <button onClick={() => { const newOpts = [...q.options]; newOpts.splice(oIndex, 1); updateQuestion(qIndex, 'options', newOpts); }} className="p-1 text-red-400 hover:text-red-600"><X className="w-4 h-4"/></button>
+                    </div>
                   </div>
                 ))}
-                <button onClick={() => updateQuestion(qIndex, 'options', [...(q.options||[]), {text: 'Nova opció', points: 0}])} className="text-sm text-blue-600 mt-2">+ Afegir opció</button>
+                <button onClick={() => updateQuestion(qIndex, 'options', [...(q.options||[]), {text: 'Nova opció', points: 0}])} className="text-sm text-blue-600 mt-2 font-medium">+ Afegir opció</button>
               </div>
             )}
-            {(q.type === 'number' || q.type === 'bilateral_number') && (<div className="text-sm text-gray-500 pl-4 mt-2">Punts màxims d'escala: <input type="number" className="border w-16 p-1 rounded ml-2" value={q.max || 10} onChange={e => updateQuestion(qIndex, 'max', Number(e.target.value))} /></div>)}
+            {(q.type === 'number' || q.type === 'bilateral_number') && (
+              <div className="text-sm text-gray-500 pl-4 mt-2 bg-gray-50 p-3 rounded">
+                Configura l'escala EVA: El pacient triarà de 0 a <input type="number" className="border border-gray-300 w-16 p-1 rounded mx-2 text-center font-bold text-gray-900" value={q.max || 10} onChange={e => updateQuestion(qIndex, 'max', Number(e.target.value))} /> (Aquests seran els punts màxims).
+              </div>
+            )}
+            {q.type === 'text' && (
+               <div className="text-sm text-gray-400 italic pl-4 mt-2">El pacient veurà una caixa de text per escriure lliurement. Aquesta pregunta no suma punts.</div>
+            )}
+            {q.type === 'section' && (
+               <div className="pl-4 mt-2">
+                 <textarea className="w-full p-2 border border-purple-100 bg-white rounded text-sm placeholder-purple-200" placeholder="Descripció opcional de la secció..." rows="2" value={q.description || ''} onChange={e => updateQuestion(qIndex, 'description', e.target.value)} />
+               </div>
+            )}
           </Card>
         ))}
-        <Button variant="outline" onClick={addQuestion} className="w-full py-4 border-dashed border-2 text-gray-500"><Plus className="w-5 h-5" /> Afegir Pregunta</Button>
+        <Button variant="outline" onClick={addQuestion} className="w-full py-4 border-dashed border-2 text-gray-500 bg-gray-50 hover:bg-gray-100 hover:text-gray-800"><Plus className="w-5 h-5" /> Afegir Nova Pregunta / Secció</Button>
       </div>
+      
       <Card className="p-6 space-y-4 border-t-4 border-green-500">
-        <h3 className="font-bold text-lg border-b pb-2">Regles d'Interpretació</h3>
+        <h3 className="font-bold text-lg border-b pb-2">Regles d'Interpretació dels Resultats</h3>
+        <p className="text-sm text-gray-500 mb-4">Depenent de la puntuació total, assigna una etiqueta (ex: "Sever") i un color per a l'informe.</p>
         {test.interpretations?.map((inter, iIndex) => (
           <div key={iIndex} className="flex flex-wrap items-center gap-2 mb-2 bg-gray-50 p-2 rounded">
             <span className="text-sm">De</span> <input type="number" className="w-16 p-2 border rounded text-sm" value={inter.min} onChange={e => { const newI = [...test.interpretations]; newI[iIndex].min = Number(e.target.value); setTest({...test, interpretations: newI}); }}/> 
             <span className="text-sm">a</span> <input type="number" className="w-16 p-2 border rounded text-sm" value={inter.max} onChange={e => { const newI = [...test.interpretations]; newI[iIndex].max = Number(e.target.value); setTest({...test, interpretations: newI}); }}/>
-            <input className="flex-1 w-full sm:w-auto p-2 border rounded mt-2 sm:mt-0 text-sm" placeholder="Etiqueta" value={inter.label} onChange={e => { const newI = [...test.interpretations]; newI[iIndex].label = e.target.value; setTest({...test, interpretations: newI}); }}/>
-            <button onClick={() => setTest({...test, interpretations: test.interpretations.filter((_, i) => i !== iIndex)})} className="text-red-500 p-2 mt-2 sm:mt-0"><Trash2 className="w-4 h-4"/></button>
+            <input className="flex-1 w-full sm:w-auto p-2 border rounded mt-2 sm:mt-0 text-sm" placeholder="Etiqueta (ex: Dolor LLeu)" value={inter.label} onChange={e => { const newI = [...test.interpretations]; newI[iIndex].label = e.target.value; setTest({...test, interpretations: newI}); }}/>
+            <select className="p-2 border rounded text-sm mt-2 sm:mt-0" value={inter.color} onChange={e => { const newI = [...test.interpretations]; newI[iIndex].color = e.target.value; setTest({...test, interpretations: newI}); }}>
+              <option value="text-green-700 bg-green-100 border-green-500">Verd</option>
+              <option value="text-yellow-700 bg-yellow-100 border-yellow-500">Groc</option>
+              <option value="text-orange-700 bg-orange-100 border-orange-500">Taronja</option>
+              <option value="text-red-700 bg-red-100 border-red-500">Vermell</option>
+              <option value="text-gray-800 bg-gray-100 border-gray-500">Gris</option>
+            </select>
+            <button onClick={() => setTest({...test, interpretations: test.interpretations.filter((_, i) => i !== iIndex)})} className="text-red-500 p-2 mt-2 sm:mt-0 hover:bg-red-50 rounded"><Trash2 className="w-4 h-4"/></button>
           </div>
         ))}
-        <button onClick={() => setTest({...test, interpretations: [...(test.interpretations||[]), {min:0, max:100, label:'Nou', color:'text-gray-800 bg-gray-100'}]})} className="text-sm text-green-600">+ Afegir Regla</button>
+        <button onClick={() => setTest({...test, interpretations: [...(test.interpretations||[]), {min:0, max:100, label:'Nova Interpretació', color:'text-gray-800 bg-gray-100 border-gray-500'}]})} className="text-sm text-green-600 font-bold">+ Afegir Regla d'Interpretació</button>
       </Card>
     </div>
   );
@@ -921,15 +942,26 @@ const TestRunner = ({ testId, patientId, episodeName, tests, user, onNavigate, i
   const [answers, setAnswers] = useState({});
   const [completed, setCompleted] = useState(false);
   const [result, setResult] = useState(null);
+  const [validationError, setValidationError] = useState('');
 
   if (!test) return <div className="text-center p-8">Test no trobat</div>;
 
   const handleAnswer = (questionId, value, subfield = null) => {
+    setValidationError('');
     if (subfield) {
+      // Per Bilateral
       setAnswers(prev => ({ ...prev, [questionId]: { ...(prev[questionId] || {}), [subfield]: value } }));
     } else {
       setAnswers(prev => ({ ...prev, [questionId]: value }));
     }
+  };
+
+  const handleCheckbox = (questionId, optionIndex, isChecked) => {
+    setValidationError('');
+    setAnswers(prev => {
+      const currentArr = prev[questionId] || {};
+      return { ...prev, [questionId]: { ...currentArr, [optionIndex]: isChecked } };
+    });
   };
 
   const calculateScore = () => {
@@ -939,6 +971,12 @@ const TestRunner = ({ testId, patientId, episodeName, tests, user, onNavigate, i
       if (q.type === 'choice') {
         maxTotal += Math.max(...q.options.map(o => o.points || 0));
         if (answer !== undefined) total += q.options[answer].points;
+      } else if (q.type === 'checkbox') {
+        // Sumem tots els punts positius de les opcions (màxim possible)
+        maxTotal += q.options.reduce((sum, o) => sum + (o.points > 0 ? o.points : 0), 0);
+        if (answer) {
+          Object.keys(answer).forEach(k => { if (answer[k]) total += q.options[k].points || 0; });
+        }
       } else if (q.type === 'boolean') {
         maxTotal += (q.points || 1);
         if (answer === true) total += (q.points || 1);
@@ -960,6 +998,23 @@ const TestRunner = ({ testId, patientId, episodeName, tests, user, onNavigate, i
   };
 
   const handleSubmit = async () => {
+    // Validació de Camps Obligatoris
+    const missingQuestions = test.questions.filter(q => {
+      if (!q.required || q.type === 'section') return false;
+      const ans = answers[q.id];
+      if (q.type === 'bilateral_number') return !ans || ans.L === undefined || ans.R === undefined;
+      if (q.type === 'checkbox') return !ans || Object.values(ans).filter(Boolean).length === 0;
+      if (q.type === 'text') return !ans || ans.trim() === '';
+      return ans === undefined || ans === '';
+    });
+
+    if (missingQuestions.length > 0) {
+      setValidationError('Si us plau, respon totes les preguntes marcades amb asterisc (*) abans de finalitzar.');
+      // Fer scroll fins a l'error (opcional, però ajuda)
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
     if (!user) return; 
     const { total, maxTotal, interpretation } = calculateScore();
     const finalResult = { patientId, testId, episodeName, date: Date.now(), answers, score: total, maxScore: maxTotal, interpretation, submittedBy: isPatientMode ? 'patient' : 'physio' };
@@ -975,12 +1030,12 @@ const TestRunner = ({ testId, patientId, episodeName, tests, user, onNavigate, i
         <Card className="p-6 md:p-8 text-center border-t-8 border-green-500">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Test Completat!</h2>
-          <p className="text-gray-500 mb-6 text-sm md:text-base">{isPatientMode ? 'Els resultats s\'han enviat correctament al teu fisioterapeuta. Ja pots tancar aquesta pestanya.' : 'Resultats guardats a l\'historial.'}</p>
+          <p className="text-gray-500 mb-6 text-sm md:text-base">{isPatientMode ? 'Els resultats s\'han enviat correctament al teu fisioterapeuta. Moltes gràcies pel teu temps. Ja pots tancar aquesta pestanya.' : 'Resultats guardats a l\'historial.'}</p>
           
           <div className="bg-gray-50 p-4 md:p-6 rounded-xl inline-block text-left mb-8 mt-2 border border-gray-100">
             <p className="text-xs md:text-sm text-gray-500 uppercase font-semibold">Puntuació Final</p>
             <p className="text-3xl md:text-4xl font-black text-gray-900 my-2">{result.score} <span className="text-lg md:text-xl text-gray-400 font-normal">/ {result.maxScore}</span></p>
-            {result.interpretation && (<div className={`mt-3 inline-block px-4 py-2 rounded-lg font-medium border text-sm md:text-base ${result.interpretation.color} border-current`}>{result.interpretation.label}</div>)}
+            {result.interpretation && (<div className={`mt-3 inline-block px-4 py-2 rounded-lg font-medium border text-sm md:text-base ${result.interpretation.color}`}>{result.interpretation.label}</div>)}
           </div>
           
           {!isPatientMode && <div><Button onClick={() => onNavigate('patient-detail', { id: patientId })} className="mx-auto">Tornar a la Fitxa</Button></div>}
@@ -992,56 +1047,121 @@ const TestRunner = ({ testId, patientId, episodeName, tests, user, onNavigate, i
   return (
     <div className="max-w-3xl mx-auto pb-24 md:pb-20">
       <div className="mb-6 md:mb-8 bg-blue-50 p-4 md:p-6 rounded-xl border border-blue-100">
-        {!isPatientMode && <button onClick={() => onNavigate('patient-detail', { id: patientId })} className="text-blue-600 hover:text-blue-800 flex items-center gap-2 mb-4 text-sm font-medium"><ArrowLeft className="w-4 h-4"/> Cancel·lar</button>}
-        {isPatientMode && <p className="text-sm text-blue-800 mb-4 font-medium">👉 Emplena aquest formulari i clica Guardar al final de tot.</p>}
-        <span className="bg-blue-600 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">Patologia: {episodeName}</span>
+        {!isPatientMode && <button onClick={() => onNavigate('patient-detail', { id: patientId })} className="text-blue-600 hover:text-blue-800 flex items-center gap-2 mb-4 text-sm font-medium"><ArrowLeft className="w-4 h-4"/> Cancel·lar i Tornar</button>}
+        {isPatientMode && <p className="text-sm text-blue-800 mb-4 font-medium">👉 Si us plau, emplena aquest qüestionari per al teu fisioterapeuta i clica Guardar al final de tot.</p>}
+        <span className="bg-blue-600 text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded uppercase tracking-wide">Episodi: {episodeName}</span>
         <h1 className="text-2xl md:text-3xl font-bold mt-3 text-slate-900 leading-tight">{test.title}</h1>
-        <p className="text-sm md:text-base text-slate-700 mt-2">{test.description}</p>
+        {test.description && <p className="text-sm md:text-base text-slate-700 mt-2 bg-white/50 p-3 rounded-lg border border-blue-100/50">{test.description}</p>}
       </div>
+
+      {validationError && (
+        <div className="mb-6 bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-start gap-3">
+           <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+           <p className="font-medium">{validationError}</p>
+        </div>
+      )}
+
       <div className="space-y-4 md:space-y-6">
-        {test.questions.map(q => (
-          <Card key={q.id} className="p-4 md:p-6 border-l-4 border-slate-300">
-            <h3 className="font-bold text-base md:text-lg mb-4 text-gray-800">{q.text}</h3>
-            {q.type === 'choice' && (
-              <div className="space-y-2">
-                {q.options.map((opt, oIdx) => (
-                  <label key={oIdx} className={`flex items-start md:items-center gap-3 p-3 md:p-4 rounded-lg border cursor-pointer transition-colors ${answers[q.id] === oIdx ? 'border-blue-500 bg-blue-50 shadow-sm' : 'hover:bg-gray-50 border-gray-200'}`}>
-                    <input type="radio" name={q.id} className="w-5 h-5 mt-0.5 md:mt-0 text-blue-600 shrink-0" checked={answers[q.id] === oIdx} onChange={() => handleAnswer(q.id, oIdx)} />
-                    <span className="font-medium text-gray-700 text-sm md:text-base">{opt.text}</span>
-                  </label>
-                ))}
+        {test.questions.map(q => {
+          
+          // RENDERITZAR SECCIÓ (ENQUADRAT)
+          if (q.type === 'section') {
+            return (
+              <div key={q.id} className="mt-8 mb-4 border-b-2 border-indigo-100 pb-2">
+                <h2 className="text-xl md:text-2xl font-bold text-indigo-900 uppercase tracking-tight">{q.text}</h2>
+                {q.description && <p className="text-gray-500 mt-1 text-sm md:text-base">{q.description}</p>}
               </div>
-            )}
-            {q.type === 'boolean' && (
-              <div className="flex gap-3 md:gap-4">
-                <label className={`flex-1 flex justify-center items-center py-3 md:py-4 border rounded-lg cursor-pointer font-bold text-base md:text-lg transition-colors ${answers[q.id] === true ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}><input type="radio" className="hidden" checked={answers[q.id] === true} onChange={() => handleAnswer(q.id, true)} />SÍ</label>
-                <label className={`flex-1 flex justify-center items-center py-3 md:py-4 border rounded-lg cursor-pointer font-bold text-base md:text-lg transition-colors ${answers[q.id] === false ? 'bg-slate-700 text-white border-slate-700 shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}><input type="radio" className="hidden" checked={answers[q.id] === false} onChange={() => handleAnswer(q.id, false)} />NO</label>
-              </div>
-            )}
-            {q.type === 'number' && (
-              <div className="pt-2 md:pt-4 px-1 md:px-2">
-                <input type="range" min="0" max={q.max || 10} className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer" value={answers[q.id] || 0} onChange={(e) => handleAnswer(q.id, e.target.value)} />
-                <div className="flex justify-between mt-4 text-xs md:text-sm text-gray-500 font-bold items-center"><span>0 (Gens)</span><span className="text-xl md:text-2xl text-blue-600 bg-blue-50 px-4 py-1 rounded-lg border border-blue-100">{answers[q.id] || 0}</span><span>{q.max || 10} (Màxim)</span></div>
-              </div>
-            )}
-            {q.type === 'bilateral_number' && (
-              <div className="flex flex-col sm:flex-row gap-4 md:gap-8 pt-2 md:pt-4">
-                <div className="flex-1 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="font-bold text-gray-600 mb-4 text-center tracking-widest text-xs md:text-sm">ESQUERRA</p>
-                  <input type="range" min="0" max={q.max || 3} className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" value={answers[q.id]?.L || 0} onChange={(e) => handleAnswer(q.id, e.target.value, 'L')} />
-                  <div className="text-center mt-4"><span className="text-xl md:text-2xl text-blue-600 font-bold bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">{answers[q.id]?.L || 0}</span></div>
+            );
+          }
+
+          // RENDERITZAR PREGUNTES NORMALS
+          return (
+            <Card key={q.id} className={`p-4 md:p-6 border-l-4 ${q.required && (answers[q.id] === undefined || answers[q.id] === '') ? 'border-red-400' : 'border-slate-300'}`}>
+              <h3 className="font-bold text-base md:text-lg mb-4 text-gray-800">
+                {q.text} {q.required && <span className="text-red-500 ml-1" title="Obligatòria">*</span>}
+              </h3>
+              
+              {q.type === 'choice' && (
+                <div className="space-y-2">
+                  {q.options.map((opt, oIdx) => (
+                    <label key={oIdx} className={`flex items-start md:items-center gap-3 p-3 md:p-4 rounded-lg border cursor-pointer transition-colors ${answers[q.id] === oIdx ? 'border-blue-500 bg-blue-50 shadow-sm' : 'hover:bg-gray-50 border-gray-200'}`}>
+                      <input type="radio" name={q.id} className="w-5 h-5 mt-0.5 md:mt-0 text-blue-600 shrink-0 cursor-pointer" checked={answers[q.id] === oIdx} onChange={() => handleAnswer(q.id, oIdx)} />
+                      <span className="font-medium text-gray-700 text-sm md:text-base">{opt.text}</span>
+                    </label>
+                  ))}
                 </div>
-                <div className="flex-1 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="font-bold text-gray-600 mb-4 text-center tracking-widest text-xs md:text-sm">DRETA</p>
-                  <input type="range" min="0" max={q.max || 3} className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer" value={answers[q.id]?.R || 0} onChange={(e) => handleAnswer(q.id, e.target.value, 'R')} />
-                  <div className="text-center mt-4"><span className="text-xl md:text-2xl text-indigo-600 font-bold bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100">{answers[q.id]?.R || 0}</span></div>
+              )}
+
+              {q.type === 'checkbox' && (
+                <div className="space-y-2">
+                  <p className="text-xs text-gray-400 mb-2 uppercase font-bold tracking-wider">Pots marcar més d'una opció</p>
+                  {q.options.map((opt, oIdx) => (
+                    <label key={oIdx} className={`flex items-start md:items-center gap-3 p-3 md:p-4 rounded-lg border cursor-pointer transition-colors ${(answers[q.id] || {})[oIdx] ? 'border-indigo-500 bg-indigo-50 shadow-sm' : 'hover:bg-gray-50 border-gray-200'}`}>
+                      <input type="checkbox" className="w-5 h-5 mt-0.5 md:mt-0 text-indigo-600 rounded shrink-0 cursor-pointer" checked={(answers[q.id] || {})[oIdx] || false} onChange={(e) => handleCheckbox(q.id, oIdx, e.target.checked)} />
+                      <span className="font-medium text-gray-700 text-sm md:text-base">{opt.text}</span>
+                    </label>
+                  ))}
                 </div>
-              </div>
-            )}
-          </Card>
-        ))}
+              )}
+
+              {q.type === 'boolean' && (
+                <div className="flex gap-3 md:gap-4">
+                  <label className={`flex-1 flex justify-center items-center py-3 md:py-4 border rounded-lg cursor-pointer font-bold text-base md:text-lg transition-colors ${answers[q.id] === true ? 'bg-blue-600 text-white border-blue-600 shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}><input type="radio" className="hidden" checked={answers[q.id] === true} onChange={() => handleAnswer(q.id, true)} />SÍ</label>
+                  <label className={`flex-1 flex justify-center items-center py-3 md:py-4 border rounded-lg cursor-pointer font-bold text-base md:text-lg transition-colors ${answers[q.id] === false ? 'bg-slate-700 text-white border-slate-700 shadow-md' : 'bg-white text-gray-700 hover:bg-gray-50'}`}><input type="radio" className="hidden" checked={answers[q.id] === false} onChange={() => handleAnswer(q.id, false)} />NO</label>
+                </div>
+              )}
+
+              {q.type === 'number' && (
+                <div className="pt-2 md:pt-4 px-1 md:px-2">
+                  <input type="range" min="0" max={q.max || 10} className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer" value={answers[q.id] || 0} onChange={(e) => handleAnswer(q.id, e.target.value)} />
+                  <div className="flex justify-between mt-4 text-xs md:text-sm text-gray-500 font-bold items-center">
+                    <span className="bg-gray-100 px-2 py-1 rounded">0</span>
+                    <span className="text-xl md:text-2xl text-blue-600 bg-blue-50 px-6 py-2 rounded-xl border border-blue-200 shadow-sm">{answers[q.id] || 0}</span>
+                    <span className="bg-gray-100 px-2 py-1 rounded">{q.max || 10}</span>
+                  </div>
+                </div>
+              )}
+
+              {q.type === 'bilateral_number' && (
+                <div className="flex flex-col sm:flex-row gap-4 md:gap-8 pt-2 md:pt-4">
+                  <div className="flex-1 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <p className="font-bold text-gray-600 mb-4 text-center tracking-widest text-xs md:text-sm">ESQUERRA</p>
+                    <input type="range" min="0" max={q.max || 3} className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer" value={answers[q.id]?.L || 0} onChange={(e) => handleAnswer(q.id, e.target.value, 'L')} />
+                    <div className="flex justify-between mt-4 text-xs text-gray-400 font-bold items-center">
+                       <span>0</span>
+                       <span className="text-xl md:text-2xl text-blue-600 font-bold bg-white px-4 py-1.5 rounded-lg shadow-sm border border-gray-100">{answers[q.id]?.L || 0}</span>
+                       <span>{q.max || 3}</span>
+                    </div>
+                  </div>
+                  <div className="flex-1 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <p className="font-bold text-gray-600 mb-4 text-center tracking-widest text-xs md:text-sm">DRETA</p>
+                    <input type="range" min="0" max={q.max || 3} className="w-full h-2 bg-indigo-200 rounded-lg appearance-none cursor-pointer" value={answers[q.id]?.R || 0} onChange={(e) => handleAnswer(q.id, e.target.value, 'R')} />
+                    <div className="flex justify-between mt-4 text-xs text-gray-400 font-bold items-center">
+                       <span>0</span>
+                       <span className="text-xl md:text-2xl text-indigo-600 font-bold bg-white px-4 py-1.5 rounded-lg shadow-sm border border-gray-100">{answers[q.id]?.R || 0}</span>
+                       <span>{q.max || 3}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {q.type === 'text' && (
+                <div className="pt-2">
+                  <textarea 
+                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-y min-h-[100px] text-gray-700" 
+                    placeholder="Escriu la teva resposta aquí..." 
+                    value={answers[q.id] || ''} 
+                    onChange={(e) => handleAnswer(q.id, e.target.value)} 
+                  />
+                </div>
+              )}
+            </Card>
+          );
+        })}
       </div>
-      <div className={`mt-8 bg-white p-3 md:p-4 border-t fixed bottom-0 left-0 right-0 ${!isPatientMode ? 'md:left-64' : ''} flex justify-center md:justify-end shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] z-10`}><Button onClick={handleSubmit} className="w-full md:w-auto px-8 py-3 text-base md:text-lg shadow-md hover:shadow-lg">Guardar i Finalitzar</Button></div>
+      <div className={`mt-8 bg-white p-3 md:p-4 border-t fixed bottom-0 left-0 right-0 ${!isPatientMode ? 'md:left-64' : ''} flex justify-center md:justify-end shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] z-20`}>
+        <Button onClick={handleSubmit} className="w-full md:w-auto px-8 py-3 text-base md:text-lg shadow-md hover:shadow-xl bg-blue-600 hover:bg-blue-700">Guardar i Finalitzar</Button>
+      </div>
     </div>
   );
 };
